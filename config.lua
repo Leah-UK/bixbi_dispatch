@@ -1,13 +1,13 @@
 Config = {}
 
-Config.Debug = true
+Config.Debug = false
 Config.RequiredItem = 'tracker' -- Player needs the item to use the system.
 Config.Keybind = nil            -- Set to a value like 'o' to enable menu opening through keybind.
 
 Config.Jobs = {
     police = {
         discordWebHook = "",
-        PanicButton = true
+        PanicButton = true      -- Does this job have the ability to use the panic button feature?
     },
     ambulance = {
         discordWebHook = "",
@@ -21,15 +21,15 @@ Config.Jobs = {
 Config.CreateDispatchCooldown = 10 -- in minutes.
 
 Config.Types = {
-    ['default'] = {
+    ['default'] = {         -- If a dispatch type isn't defined in this section it will use this one by default.
         label = "dispatch",
-        enableFlash = true,
+        enableFlash = true, -- Flash the area on the map?
         marker = {
-            sprite = 1, -- https://docs.fivem.net/docs/game-references/blips/
+            sprite = 1,     -- https://docs.fivem.net/docs/game-references/blips/
             colour = 0,
             scale = 1.0,
             flashscale = 50.0,
-            flashtime = 30 -- seconds.
+            flashtime = 30  -- seconds.
         }
     },
     ['robbery'] = {
