@@ -3,7 +3,9 @@ Config = {}
 Config.Debug = false
 Config.RequiredItem = 'tracker' -- Player needs the item to use the system.
 Config.Keybind = nil            -- Set to a value like 'o' to enable menu opening through keybind.
-Config.PanicKeybind = false     -- Set to a value like 'f11' to enable.
+Config.Command = 'dispatchmenu' -- Command to open the menu.
+Config.PanicKeybind = nil       -- Set to a value like 'f11' to enable.
+Config.PanicCommand = 'panic'   -- Command to initiate panic button.
 
 Config.Jobs = {
     police = {

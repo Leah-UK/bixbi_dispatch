@@ -4,7 +4,7 @@ local dispatchList = {}
 local dispatchListId = 0
 local responseTime = ''
 local source = GetPlayerServerId(PlayerId())
-RegisterCommand('dispatchmenu', function()
+RegisterCommand(Config.Command, function()
     ESX.TriggerServerCallback('bixbi_core:itemCount', function(itemCount)
         while (itemCount == nil) do Citizen.Wait(100) end
         if (itemCount == 0) then
