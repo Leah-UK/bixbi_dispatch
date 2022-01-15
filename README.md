@@ -33,7 +33,21 @@ Navigate to your <b>interact-sound</b> installation folder, then go to client > 
 
 <h2 align='center'>Exports</h2>
 
+<b>Create a Dispatch</b>
+<code>exports['bixbi_dispatch']:CreateDispatch()</code>
 
+<b>Panic Button</b>
+<code>TriggerServerEvent('bixbi_dispatch:PanicButton')</code>
+<br><br><u><b>Create Dispatch - Server</b></u><br>
+<code>TriggerEvent('bixbi_dispatch:Add', localPlayerId*, jobToAlert, type, message, location*)</code>
+<br>
+<i><b>*</b> = Optional. If location is nil you need to supply localPlayerId, and vice-versa.</i>
+
+<i>Example:</i> <code>TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'robbery', 'Someone is robbing a store', nil)</code>
+
+<b>Create Dispatch - Client</b><br><i>Mostly the same as Server</i>
+
+<i>Example:</i> <code>TriggerServerEvent('bixbi_dispatch:Add', GetPlayerServerId(PlayerId()), 'police', 'prisonbreak', 'There is a prison break in progress!', GetEntityCoords(PlayerPedId()))</code>
 
 ---
 
