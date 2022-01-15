@@ -5,7 +5,9 @@
 
 <h2 align='center'>Information</h2>
 
-Coming soon
+A lightweight dispatch system where data is saved on the server instead of the client. This allows for everyone of the same job to see all available dispatches and contribute to them together. When someone deletes the dispatch it will update across every other client.
+
+The menu is created in a way which will allow the user to continue driving (a pursuit(?)) and not have to move their mouse to click on options. To combat griefers there's an optional discord logging system to ensure that people are closing dispatches at the correct time, after dealing with them appropriately. 
 
 ---
 
@@ -26,6 +28,12 @@ Navigate to your <b>interact-sound</b> installation folder, then go to client > 
 - <a href='https://github.com/overextended/es_extended'>"Ox" ESX</a>,<i> You can modify for other frameworks. <b>Please make a PR if you do</b></i>
 - <a href='https://github.com/Leah-UK/bixbi_core'>bixbi_core</a>
 - <a href='https://github.com/plunkettscott/interact-sound'>Interact Sound</a>
+
+---
+
+<h2 align='center'>Exports</h2>
+
+
 
 ---
 
