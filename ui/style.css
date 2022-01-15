@@ -1,0 +1,70 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: sans-serif;
+	overflow: hidden;
+}
+
+.box {
+    position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+    top: 25%;
+    right: 15%;
+    width: 25vh;
+    color: #fdefd7;
+    font-family: sans-serif, Arial;
+	font-size: 14px;
+    text-align: center;
+}
+
+.confirmationbox {
+    position: absolute;
+	margin-left: auto;
+	margin-right: auto;
+    top: 25%;
+    right: 15%;
+    width: 25vh;
+    color: #fdefd7;
+    font-family: sans-serif, Arial;
+	font-size: 14px;
+    text-align: center;
+}
+
+.headerBackground {
+    background-color: #111518ee;
+    border: 1px solid black;
+}
+
+.fieldBackground {
+    margin-top: 0.6vh;
+    background-color: #111518d0;
+    border: 1px solid black;
+}
+
+.instructions {
+    margin-top: 0.6vh;
+    background-color: #11151881;
+    border: 1px solid black;
+    font-size: 12px;
+    color: #fdefd7be;
+    /* width: 50%; */
+}
+
+
+.headerText {
+    padding-top: 0.1vh;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.fieldHeader{
+    margin: 5px;
+    font-weight: bold;
+}
+
+.fieldText{
+    margin: 5px;
+}
