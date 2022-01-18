@@ -7,7 +7,9 @@
 
 A lightweight dispatch system where data is saved on the server instead of the client. This allows for everyone of the same job to see all available dispatches and contribute to them together. When someone deletes the dispatch it will update across every other client.
 
-The menu is created in a way which will allow the user to continue driving (a pursuit(?)) and not have to move their mouse to click on options. To combat griefers there's an optional discord logging system to ensure that people are closing dispatches at the correct time, after dealing with them appropriately. 
+The menu is created in a way which will allow the user to continue driving (a pursuit(?)) and not have to move their mouse to click on options. To combat griefers there's an optional discord logging system to ensure that people are closing dispatches at the correct time, after dealing with them appropriately.
+
+<h3 align='center'><b><a href='https://youtu.be/sLQaIRR7lX0'>Demonstration Video</a></b></h3>
 
 ---
 
