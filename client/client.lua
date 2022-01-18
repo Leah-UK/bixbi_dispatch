@@ -135,7 +135,7 @@ function CreatedDispatch()
     end)
 end
 
-if (Config.PanicKeybind ~= nil) then RegisterKeyMapping('panic', 'Panic Button', 'keyboard', Config.PanicKeybind) end
+if (Config.PanicKeybind ~= nil) then RegisterKeyMapping(Config.PanicCommand, 'Panic Button', 'keyboard', Config.PanicKeybind) end
 RegisterCommand(Config.PanicCommand, function()
     TriggerServerEvent('bixbi_dispatch:PanicButton')
 end, false)

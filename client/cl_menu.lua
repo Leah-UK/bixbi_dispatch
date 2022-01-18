@@ -74,7 +74,7 @@ function MenuControls()
 end
 
 function GetYesNo(dispatchNumber)
-    ExecuteCommand('dispatchmenu')
+    ExecuteCommand(Config.Command)
     local responded = false
     SendNUIMessage({ show = true, yesno = true })
     SetInterval(2, 1, function()

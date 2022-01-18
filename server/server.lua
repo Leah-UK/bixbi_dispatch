@@ -4,9 +4,12 @@ TriggerEvent("esx:getSharedObject", function(obj) ESX = obj end)
 local dispatchList = {police = {}, ambulance = {}, mechanic = {}}
 local typeCooldown = {}
 
--- ESX.RegisterCommand('dispatchtest', 'user', function(xPlayer, args, showError)
--- 	TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'test', 'Just a test :)')
--- end, false)
+ESX.RegisterCommand('dispatchtest', 'user', function(xPlayer, args, showError)
+	-- TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'test', 'Just a test :)')
+    TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'prisonbreak', 'Prison Break Test', vector3(1755.32, 2604.94, 45.56))
+    TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'drugsale', 'Drug Sale Test', vector3(411.67, -1009.09, 29.36))
+    TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'default', 'Just a text message!', vector3(210.21, -805.9, 30.89))
+end, false)
 
 -- ESX.RegisterCommand('dispatchrem', 'user', function(xPlayer, args, showError)
 -- 	TriggerEvent('bixbi_dispatch:Remove', xPlayer.playerId, 'police', 'test')
