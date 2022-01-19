@@ -145,8 +145,17 @@ ESX.RegisterServerCallback('bixbi_dispatch:GetListUnComplete', function(source, 
 end)
 
 function SendDiscordLog(job, message)
-    if (Config.Jobs[job].discordWebHook == "" or message == "") then return end
-    TriggerEvent('bixbi_logging:customLog', 'Dispatch Completed', 16744192, Config.Jobs[job].discordWebHook, message)
+    local discordURL = Config.Jobs[job].discordWebHook
+    if (discordURL == nil or Config.Jobs[job].discordWebHook == "" or message == "") then return end
+    local embeds = {
+        {
+            ["title"]= 'Dispatch Completed',
+            ["description"]= message,
+            ["type"]= "rich",
+            ["color"] = 16744192,
+        }
+    }
+    PerformHttpRequest(discordURL, function(err, text, headers) end, 'POST', json.encode({ username = 'Dispatch Completed', embeds = embeds}), { ['Content-Type'] = 'application/json' })
 end
 
 AddEventHandler('onResourceStart', function(resourceName)
