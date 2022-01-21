@@ -6,6 +6,7 @@ game 'gta5'
 author 'Leah#0001'
 version '1.1.1'
 versioncheck 'https://raw.githubusercontent.com/Leah-UK/bixbi_dispatch/main/fxmanifest.lua'
+lua54 'yes'
 
 shared_scripts {
 	'@es_extended/imports.lua',
