@@ -4,8 +4,14 @@ local dispatchList = {}
 local dispatchListId = 0
 local responseTime = ''
 local source = GetPlayerServerId(PlayerId())
-local lowestDispatchNumber = 0
+local doingAction = false
+
 RegisterCommand(Config.Command, function()
+    OpenMenu()
+end, false)
+if (Config.Keybind ~= nil) then RegisterKeyMapping(Config.Command, 'Dispatch Menu', 'keyboard', Config.Keybind) end
+
+function OpenMenu()
     ESX.TriggerServerCallback('bixbi_core:itemCountCb', function(itemCount)
         while (itemCount == nil) do Citizen.Wait(100) end
         if (itemCount == 0) then
@@ -27,60 +33,83 @@ RegisterCommand(Config.Command, function()
                 end
 
                 responseTime = tostring(response.time)
-                dispatchListId = lowestDispatchNumber
-                if (MenuNavigate(false, true)) then MenuControls() end
+                dispatchListId = 0
+                -- if (MenuNavigate(false, true)) then MenuControls() end
+                MenuNavigate(false, true)
+                MenuControls()
             end)
         else
             SendNUIMessage({ show = menuOpen })
         end
     end, Config.RequiredItem)
-
-	
-end, false)
-if (Config.Keybind ~= nil) then RegisterKeyMapping(Config.Command, 'Dispatch Menu', 'keyboard', Config.Keybind) end
+end
 
 local menuLoop = nil
 function MenuControls()
     menuLoop = SetInterval(function()
         if (not menuOpen) then return end
-        if (IsControlJustReleased(0, 174)) then -- left arrow
-            if (#dispatchList > 1) then MenuNavigate(true, false) end
+        if (IsControlJustReleased(0, 174) and #dispatchList > 1 and not navInProgress) then -- left arrow
+            MenuNavigate(true, false)
             SendSound('navigate')
         end
-        if (IsControlJustReleased(0, 175)) then -- right arrow
-            if (#dispatchList > 1) then MenuNavigate(false, false) end
+        if (IsControlJustReleased(0, 175) and #dispatchList > 1 and not navInProgress) then -- right arrow
+            MenuNavigate(false, false)
             SendSound('navigate')
         end
         
         if (IsControlJustReleased(0, 43)) then -- [ Respond
-            SendSound('pop')
-            local dispatch = dispatchList[dispatchListId]
-            if (currentlyAttending[dispatchListId] == nil) then
-                CreateBlip(dispatch.type, false, dispatch.gps, tostring(dispatchListId))
-                TriggerServerEvent('bixbi_dispatch:Attend', source, dispatchListId)
-                currentlyAttending[dispatchListId] = {}
-                table.insert(currentlyAttending, currentlyAttending[dispatchListId])
-            else
-                TriggerServerEvent('bixbi_dispatch:UnAttend', source, dispatchListId)
-                currentlyAttending[dispatchListId] = nil
-            end
-            ClearInterval(menuLoop)
+            RespondAction()
         end
         if (IsControlJustReleased(0, 304)) then -- H Waypoint
-            SendSound('pop')
-            local dispatch = dispatchList[dispatchListId]
-            CreateBlip(dispatch.type, false, dispatch.gps, tostring(dispatchListId))
+            WaypointAction()
         end
         if (IsControlJustReleased(0, 42)) then -- ] Delete
-            SendSound('pop')
-            GetYesNo(dispatchListId)
+            GetYesNo(dispatchList[dispatchListId].number)
         end
     end, 1)
     SetInterval(menuLoop, 1)
 end
 
+function RespondAction()
+    if (doingAction) then return end
+    doingAction = true
+    Citizen.SetTimeout(250, function()
+        doingAction = false
+    end)
+
+    local dispatch = dispatchList[dispatchListId]
+    if (currentlyAttending[dispatchListId] == nil and not currentlyAttending[dispatchListId]) then
+        CreateBlip(dispatch.type, false, dispatch.gps, tostring(dispatch.number))
+        TriggerServerEvent('bixbi_dispatch:Attend', source, dispatch.number)
+        currentlyAttending[dispatchListId] = {}
+    else
+        TriggerServerEvent('bixbi_dispatch:UnAttend', source, dispatch.number)
+        currentlyAttending[dispatchListId] = false
+    end
+    SendSound('pop')
+end
+
+function WaypointAction()
+    if (doingAction) then return end
+    doingAction = true
+    Citizen.SetTimeout(250, function()
+        doingAction = false
+    end)
+
+    local dispatch = dispatchList[dispatchListId]
+    CreateBlip(dispatch.type, false, dispatch.gps, tostring(dispatch.number))
+    SendSound('pop')
+end
+
 function GetYesNo(dispatchNumber)
-    ExecuteCommand(Config.Command)
+    if (doingAction) then return end
+    doingAction = true
+    Citizen.SetTimeout(250, function()
+        doingAction = false
+    end)
+
+    SendSound('pop')
+    OpenMenu()
     ClearInterval(menuLoop)
     local responded = false
     SendNUIMessage({ show = true, yesno = true })
@@ -98,8 +127,8 @@ function GetYesNo(dispatchNumber)
             responded = true
             return
         end
-    end, 1)
-    SetInterval(yesNoLoop, 1)
+    end)
+    SetInterval(yesNoLoop)
 
     local waitTime = 0
     while (not responded) do 
@@ -111,15 +140,21 @@ function GetYesNo(dispatchNumber)
     ClearInterval(yesNoLoop)
 end
 
-local menuNavAttempts = 0
+-- local menuNavAttempts = 0
+-- local navInProgress = false
 function MenuNavigate(isLeft, isNew)
-    menuNavAttempts = 0
+    -- menuNavAttempts = 0
+    if (doingAction) then return end
+    doingAction = true
+    Citizen.SetTimeout(250, function()
+        doingAction = false
+    end)
     return DoMenuNav(isLeft, isNew)
 end
 
 function DoMenuNav(isLeft, isNew)
-    Citizen.Wait(0)
-
+    -- Citizen.Wait(0)
+    
     if (isLeft) then
         if (dispatchListId <= 1) then 
             dispatchListId = #dispatchList
@@ -133,24 +168,24 @@ function DoMenuNav(isLeft, isNew)
             dispatchListId = dispatchListId + 1
         end
     end
-
-    if (dispatchList[dispatchListId] == nil or dispatchList[dispatchListId] == false) then       
-        menuNavAttempts = menuNavAttempts + 1
-        if (menuNavAttempts > 999) then
-            exports['bixbi_core']:Notify('error', 'No incidents reported')
-            return false
-        elseif (menuNavAttempts == 200) then
-            exports['bixbi_core']:Notify('error', 'There\'s more than 200 reports logged. Please wait...')
-        end
-
-        if (lowestDispatchNumber == 0 or dispatchListId == lowestDispatchNumber) then
-            lowestDispatchNumber = dispatchListId + 1 
-        end
-        DoMenuNav(isLeft, isNew)
-    else
-        SendNUIMessage(SetupUI(dispatchList[dispatchListId], isNew))
-        return true
-    end
+    
+    SendNUIMessage(SetupUI(dispatchList[dispatchListId], isNew))
+    -- Citizen.Wait(0)
+    -- print(' ')
+    -- if (dispatchList[dispatchListId] == nil or dispatchList[dispatchListId] == false) then       
+    --     menuNavAttempts = menuNavAttempts + 1
+    --     if (menuNavAttempts > 999) then
+    --         exports['bixbi_core']:Notify('error', 'No incidents reported')
+    --         return false
+    --     elseif (menuNavAttempts == 200) then
+    --         exports['bixbi_core']:Notify('error', 'There\'s more than 200 reports logged. Please wait...')
+    --     end
+    --     DoMenuNav(isLeft, isNew)
+    -- else
+    --     SendNUIMessage(SetupUI(dispatchList[dispatchListId], isNew))
+    --     return true
+    -- end
+    -- Citizen.Wait(0)
 end
 
 function SetupUI(dispatch, isNew)
@@ -178,7 +213,7 @@ function SetupUI(dispatch, isNew)
     return {
         show = menuOpen,
         time = '[' .. responseTime .. ']',
-        incident = tostring(dispatchListId) .. ' - ' .. dispatch.time,
+        incident = tostring(dispatch.number) .. ' - ' .. dispatch.time,
         type =   dispatch.type,
         details = dispatch.message,
         location = location,

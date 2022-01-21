@@ -54,7 +54,7 @@ AddEventHandler('bixbi_dispatch:Add', function(source, job, type, message, gps)
         gps = gps,
         time = os.date("%H:%M"),
         attending = { count = 0 },
-        num = #dispatchList[job] + 1
+        number = #dispatchList[job] + 1
     }
     table.insert(dispatchList[job], newDispatch)
 
@@ -71,7 +71,7 @@ AddEventHandler('bixbi_dispatch:Add', function(source, job, type, message, gps)
             TriggerClientEvent('bixbi_core:Notify', k, 'error', 'DISPATCH: New ' .. label .. ' has been logged!', 10000)
             TriggerClientEvent('bixbi_core:Notify', k, 'error', 'DISPATCH: New ' .. label .. ' has been logged!', 10000)
         end
-        TriggerClientEvent('bixbi_dispatch:CreateBlip', k, type, true, gps, tostring(#dispatchList[job]))
+        TriggerClientEvent('bixbi_dispatch:CreateBlip', k, type, true, gps, tostring(newDispatch.number))
     end
 end)
 
@@ -117,7 +117,12 @@ end)
 
 ESX.RegisterServerCallback('bixbi_dispatch:GetDispatches', function(source, cb)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local list = dispatchList[xPlayer.job.name]
+    -- local list = dispatchList[xPlayer.job.name]
+    local list = {}
+    for _, v in pairs(dispatchList[xPlayer.job.name]) do
+        if (v) then table.insert(list, v) end
+    end
+
     local response = { time = os.date("%H:%M"), list = list }
     cb(response)
 end)
