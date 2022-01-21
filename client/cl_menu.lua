@@ -28,7 +28,6 @@ RegisterCommand(Config.Command, function()
             end)
         else
             SendNUIMessage({ show = menuOpen })
-            -- ClearInterval(1)
         end
     end, Config.RequiredItem)
 
@@ -37,38 +36,41 @@ end, false)
 if (Config.Keybind ~= nil) then RegisterKeyMapping('dispatchmenu', 'Dispatch Menu', 'keyboard', Config.Keybind) end
 
 function MenuControls()
-    SetInterval(1, 1, function()
-        if (#dispatchList == 0 or not menuOpen) then return end
-        if (IsControlJustReleased(0, 174)) then -- left arrow
-            if (#dispatchList > 1) then MenuNavigate(true, false) end
-            SendSound('navigate')
-        end
-        if (IsControlJustReleased(0, 175)) then -- right arrow
-            if (#dispatchList > 1) then MenuNavigate(false, false) end
-            SendSound('navigate')
-        end
-        
-        if (IsControlJustReleased(0, 43)) then -- [ Respond
-            SendSound('pop')
-            local dispatch = dispatchList[dispatchListId]
-            if (currentlyAttending[tostring(dispatch.num)] == nil) then
-                CreateBlip(dispatch.type, false, dispatch.gps, dispatch.num)
-                TriggerServerEvent('bixbi_dispatch:Attend', source, tostring(dispatch.num))
-                currentlyAttending[tostring(dispatch.num)] = {}
-                table.insert(currentlyAttending, currentlyAttending[tostring(dispatch.num)])
-            else
-                TriggerServerEvent('bixbi_dispatch:UnAttend', source, tostring(dispatch.num))
-                currentlyAttending[tostring(dispatch.num)] = nil
+    Citizen.CreateThread(function()
+        while (menuOpen) do
+            Citizen.Wait(0)
+            if (#dispatchList == 0 or not menuOpen) then return end
+            if (IsControlJustReleased(0, 174)) then -- left arrow
+                if (#dispatchList > 1) then MenuNavigate(true, false) end
+                SendSound('navigate')
             end
-        end
-        if (IsControlJustReleased(0, 304)) then -- H Waypoint
-            SendSound('pop')
-            local dispatch = dispatchList[dispatchListId]
-            CreateBlip(dispatch.type, false, dispatch.gps, dispatch.num)
-        end
-        if (IsControlJustReleased(0, 42)) then -- ] Delete
-            SendSound('pop')
-            GetYesNo(tostring(dispatchList[dispatchListId].num))
+            if (IsControlJustReleased(0, 175)) then -- right arrow
+                if (#dispatchList > 1) then MenuNavigate(false, false) end
+                SendSound('navigate')
+            end
+            
+            if (IsControlJustReleased(0, 43)) then -- [ Respond
+                SendSound('pop')
+                local dispatch = dispatchList[dispatchListId]
+                if (currentlyAttending[tostring(dispatch.num)] == nil) then
+                    CreateBlip(dispatch.type, false, dispatch.gps, dispatch.num)
+                    TriggerServerEvent('bixbi_dispatch:Attend', source, tostring(dispatch.num))
+                    currentlyAttending[tostring(dispatch.num)] = {}
+                    table.insert(currentlyAttending, currentlyAttending[tostring(dispatch.num)])
+                else
+                    TriggerServerEvent('bixbi_dispatch:UnAttend', source, tostring(dispatch.num))
+                    currentlyAttending[tostring(dispatch.num)] = nil
+                end
+            end
+            if (IsControlJustReleased(0, 304)) then -- H Waypoint
+                SendSound('pop')
+                local dispatch = dispatchList[dispatchListId]
+                CreateBlip(dispatch.type, false, dispatch.gps, dispatch.num)
+            end
+            if (IsControlJustReleased(0, 42)) then -- ] Delete
+                SendSound('pop')
+                GetYesNo(tostring(dispatchList[dispatchListId].num))
+            end
         end
     end)
 end
@@ -77,20 +79,7 @@ function GetYesNo(dispatchNumber)
     ExecuteCommand(Config.Command)
     local responded = false
     SendNUIMessage({ show = true, yesno = true })
-    SetInterval(2, 1, function()
-        if (IsControlJustReleased(0, 43)) then -- [ Yes
-            SendSound('pop')
-            TriggerServerEvent('bixbi_dispatch:Remove', source, dispatchNumber)
-            responded = true
-            return
-        end
-        if (IsControlJustReleased(0, 42)) then -- ] No
-            SendSound('pop')
-            responded = true
-            return
-        end
-        if (responded) then return end
-    end)
+    GetYesOrNoInteraction()
 
     local waitTime = 0
     while (not responded) do 
@@ -99,7 +88,26 @@ function GetYesNo(dispatchNumber)
         if (waitTime >= 50 * 100) then responded = true end
     end
     SendNUIMessage({ show = false, yesno = true })
-    -- ClearInterval(2)
+end
+
+function GetYesOrNoInteraction()
+    Citizen.CreateThread(function()
+        while (not responded) do
+            Citizen.Wait(0)
+            if (IsControlJustReleased(0, 43)) then -- [ Yes
+                SendSound('pop')
+                TriggerServerEvent('bixbi_dispatch:Remove', source, dispatchNumber)
+                responded = true
+                return
+            end
+            if (IsControlJustReleased(0, 42)) then -- ] No
+                SendSound('pop')
+                responded = true
+                return
+            end
+            if (responded) then return end
+        end
+    end)
 end
 
 local menuNavAttempts = 0
