@@ -28,6 +28,10 @@ RegisterCommand(Config.Command, function()
             end)
         else
             SendNUIMessage({ show = menuOpen })
+<<<<<<< HEAD
+=======
+            ClearInterval(1)
+>>>>>>> parent of e4a1fcd (Fix to clear interval)
         end
     end, Config.RequiredItem)
 
@@ -36,6 +40,7 @@ end, false)
 if (Config.Keybind ~= nil) then RegisterKeyMapping('dispatchmenu', 'Dispatch Menu', 'keyboard', Config.Keybind) end
 
 function MenuControls()
+<<<<<<< HEAD
     Citizen.CreateThread(function()
         while (menuOpen) do
             Citizen.Wait(0)
@@ -65,6 +70,23 @@ function MenuControls()
             if (IsControlJustReleased(0, 304)) then -- H Waypoint
                 SendSound('pop')
                 local dispatch = dispatchList[dispatchListId]
+=======
+    SetInterval(1, 1, function()
+        if (#dispatchList == 0) then return end
+        if (IsControlJustReleased(0, 174)) then -- left arrow
+            if (#dispatchList > 1) then MenuNavigate(true, false) end
+            SendSound('navigate')
+        end
+        if (IsControlJustReleased(0, 175)) then -- right arrow
+            if (#dispatchList > 1) then MenuNavigate(false, false) end
+            SendSound('navigate')
+        end
+        
+        if (IsControlJustReleased(0, 43)) then -- [ Respond
+            SendSound('pop')
+            local dispatch = dispatchList[dispatchListId]
+            if (currentlyAttending[tostring(dispatch.num)] == nil) then
+>>>>>>> parent of e4a1fcd (Fix to clear interval)
                 CreateBlip(dispatch.type, false, dispatch.gps, dispatch.num)
             end
             if (IsControlJustReleased(0, 42)) then -- ] Delete
@@ -79,7 +101,23 @@ function GetYesNo(dispatchNumber)
     ExecuteCommand(Config.Command)
     local responded = false
     SendNUIMessage({ show = true, yesno = true })
+<<<<<<< HEAD
     GetYesOrNoInteraction()
+=======
+    SetInterval(2, 1, function()
+        if (IsControlJustReleased(0, 43)) then -- [ Yes
+            SendSound('pop')
+            TriggerServerEvent('bixbi_dispatch:Remove', source, dispatchNumber)
+            responded = true
+            return
+        end
+        if (IsControlJustReleased(0, 42)) then -- ] No
+            SendSound('pop')
+            responded = true
+            return
+        end
+    end)
+>>>>>>> parent of e4a1fcd (Fix to clear interval)
 
     local waitTime = 0
     while (not responded) do 
@@ -88,6 +126,7 @@ function GetYesNo(dispatchNumber)
         if (waitTime >= 50 * 100) then responded = true end
     end
     SendNUIMessage({ show = false, yesno = true })
+<<<<<<< HEAD
 end
 
 function GetYesOrNoInteraction()
@@ -108,6 +147,9 @@ function GetYesOrNoInteraction()
             if (responded) then return end
         end
     end)
+=======
+    ClearInterval(2)
+>>>>>>> parent of e4a1fcd (Fix to clear interval)
 end
 
 local menuNavAttempts = 0
