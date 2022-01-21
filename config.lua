@@ -1,6 +1,6 @@
 Config = {}
 
-Config.Debug = false
+Config.Debug = false -- Allows live-restarting of the script.
 Config.RequiredItem = 'tracker' -- Player needs the item to use the system.
 Config.Keybind = nil            -- Set to a value like 'o' to enable menu opening through keybind.
 Config.Command = 'dispatchmenu' -- Command to open the menu.
