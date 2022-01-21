@@ -50,33 +50,22 @@ AddEventHandler('bixbi_dispatch:Add', function(source, job, type, message, gps)
 
     local dispatchNumber = "1"
     if (dispatchList[job][dispatchNumber] == nil) then
-        -- Create new list.
-        -- local newDispatch = {}
         dispatchList[job][dispatchNumber] = {}
-        dispatchList[job][dispatchNumber].type = type
-        dispatchList[job][dispatchNumber].message = message
-        dispatchList[job][dispatchNumber].gps = gps
-        dispatchList[job][dispatchNumber].time = os.date("%H:%M")
         dispatchList[job][dispatchNumber].num = 1
-        dispatchList[job][dispatchNumber].attending = { count = 0 }
-        dispatchList[job][dispatchNumber].complete = false
-
-        table.insert(dispatchList[job], dispatchList[job][dispatchNumber])
     else
-        -- Get last dispatch number.
         local lastElement = dispatchList[job][#dispatchList[job]]
         dispatchNumber = tostring(lastElement.num + 1)
         dispatchList[job][dispatchNumber] = {}
-        dispatchList[job][dispatchNumber].type = type
-        dispatchList[job][dispatchNumber].message = message
-        dispatchList[job][dispatchNumber].gps = gps
-        dispatchList[job][dispatchNumber].time = os.date("%H:%M")
         dispatchList[job][dispatchNumber].num = lastElement.num + 1
-        dispatchList[job][dispatchNumber].attending = { count = 0 }
-        dispatchList[job][dispatchNumber].complete = false
-
-        table.insert(dispatchList[job], dispatchList[job][dispatchNumber])
     end
+
+    dispatchList[job][dispatchNumber].type = type
+    dispatchList[job][dispatchNumber].message = message
+    dispatchList[job][dispatchNumber].gps = gps
+    dispatchList[job][dispatchNumber].time = os.date("%H:%M")
+    dispatchList[job][dispatchNumber].attending = { count = 0 }
+    dispatchList[job][dispatchNumber].complete = false
+    table.insert(dispatchList[job], dispatchList[job][dispatchNumber])
 
     for k, v in pairs(ESX.GetExtendedPlayers('job', job)) do
         local label = ''
