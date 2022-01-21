@@ -28,7 +28,7 @@ RegisterCommand(Config.Command, function()
             end)
         else
             SendNUIMessage({ show = menuOpen })
-            ClearInterval(1)
+            -- ClearInterval(1)
         end
     end, Config.RequiredItem)
 
@@ -38,7 +38,7 @@ if (Config.Keybind ~= nil) then RegisterKeyMapping('dispatchmenu', 'Dispatch Men
 
 function MenuControls()
     SetInterval(1, 1, function()
-        if (#dispatchList == 0) then return end
+        if (#dispatchList == 0 or not menuOpen) then return end
         if (IsControlJustReleased(0, 174)) then -- left arrow
             if (#dispatchList > 1) then MenuNavigate(true, false) end
             SendSound('navigate')
@@ -89,6 +89,7 @@ function GetYesNo(dispatchNumber)
             responded = true
             return
         end
+        if (responded) return end
     end)
 
     local waitTime = 0
@@ -98,7 +99,7 @@ function GetYesNo(dispatchNumber)
         if (waitTime >= 50 * 100) then responded = true end
     end
     SendNUIMessage({ show = false, yesno = true })
-    ClearInterval(2)
+    -- ClearInterval(2)
 end
 
 local menuNavAttempts = 0
