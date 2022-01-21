@@ -4,7 +4,7 @@ local dispatchList = {}
 local dispatchListId = 0
 local responseTime = ''
 local source = GetPlayerServerId(PlayerId())
-local lowestDispatchNumber = 1
+local lowestDispatchNumber = 0
 RegisterCommand(Config.Command, function()
     ESX.TriggerServerCallback('bixbi_core:itemCountCb', function(itemCount)
         while (itemCount == nil) do Citizen.Wait(100) end
@@ -32,7 +32,6 @@ RegisterCommand(Config.Command, function()
             end)
         else
             SendNUIMessage({ show = menuOpen })
-            -- ClearInterval(1)
         end
     end, Config.RequiredItem)
 
@@ -40,6 +39,7 @@ RegisterCommand(Config.Command, function()
 end, false)
 if (Config.Keybind ~= nil) then RegisterKeyMapping(Config.Command, 'Dispatch Menu', 'keyboard', Config.Keybind) end
 
+local menuLoop = nil
 function MenuControls()
     menuLoop = SetInterval(function()
         if (not menuOpen) then return end
@@ -56,7 +56,7 @@ function MenuControls()
             SendSound('pop')
             local dispatch = dispatchList[dispatchListId]
             if (currentlyAttending[dispatchListId] == nil) then
-                CreateBlip(dispatch.type, false, dispatch.gps, dispatch.num)
+                CreateBlip(dispatch.type, false, dispatch.gps, tostring(dispatchListId))
                 TriggerServerEvent('bixbi_dispatch:Attend', source, dispatchListId)
                 currentlyAttending[dispatchListId] = {}
                 table.insert(currentlyAttending, currentlyAttending[dispatchListId])
@@ -64,21 +64,24 @@ function MenuControls()
                 TriggerServerEvent('bixbi_dispatch:UnAttend', source, dispatchListId)
                 currentlyAttending[dispatchListId] = nil
             end
+            ClearInterval(menuLoop)
         end
         if (IsControlJustReleased(0, 304)) then -- H Waypoint
             SendSound('pop')
             local dispatch = dispatchList[dispatchListId]
-            CreateBlip(dispatch.type, false, dispatch.gps, dispatch.num)
+            CreateBlip(dispatch.type, false, dispatch.gps, tostring(dispatchListId))
         end
         if (IsControlJustReleased(0, 42)) then -- ] Delete
             SendSound('pop')
             GetYesNo(dispatchListId)
         end
     end, 1)
+    SetInterval(menuLoop, 1)
 end
 
 function GetYesNo(dispatchNumber)
     ExecuteCommand(Config.Command)
+    ClearInterval(menuLoop)
     local responded = false
     SendNUIMessage({ show = true, yesno = true })
 
@@ -95,7 +98,8 @@ function GetYesNo(dispatchNumber)
             responded = true
             return
         end
-    end, 2)
+    end, 1)
+    SetInterval(yesNoLoop, 1)
 
     local waitTime = 0
     while (not responded) do 
@@ -104,7 +108,7 @@ function GetYesNo(dispatchNumber)
         if (waitTime >= 50 * 100) then responded = true end
     end
     SendNUIMessage({ show = false, yesno = true })
-    -- ClearInterval(2)
+    ClearInterval(yesNoLoop)
 end
 
 local menuNavAttempts = 0
@@ -117,13 +121,13 @@ function DoMenuNav(isLeft, isNew)
     Citizen.Wait(0)
 
     if (isLeft) then
-        if (dispatchListId == 1) then 
+        if (dispatchListId <= 1) then 
             dispatchListId = #dispatchList
         else
             dispatchListId = dispatchListId - 1
         end
     else
-        if (dispatchListId == #dispatchList) then 
+        if (dispatchListId >= #dispatchList) then 
             dispatchListId = 1
         else
             dispatchListId = dispatchListId + 1
@@ -139,8 +143,9 @@ function DoMenuNav(isLeft, isNew)
             exports['bixbi_core']:Notify('error', 'There\'s more than 200 reports logged. Please wait...')
         end
 
-        if (dispatchListId == lowestDispatchNumber) then lowestDispatchNumber = dispatchListId end
-
+        if (lowestDispatchNumber == 0 or dispatchListId == lowestDispatchNumber) then
+            lowestDispatchNumber = dispatchListId + 1 
+        end
         DoMenuNav(isLeft, isNew)
     else
         SendNUIMessage(SetupUI(dispatchList[dispatchListId], isNew))
@@ -173,7 +178,7 @@ function SetupUI(dispatch, isNew)
     return {
         show = menuOpen,
         time = '[' .. responseTime .. ']',
-        incident = dispatch.num .. ' - ' .. dispatch.time,
+        incident = tostring(dispatchListId) .. ' - ' .. dispatch.time,
         type =   dispatch.type,
         details = dispatch.message,
         location = location,
