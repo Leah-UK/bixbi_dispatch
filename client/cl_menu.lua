@@ -89,7 +89,7 @@ function GetYesNo(dispatchNumber)
             responded = true
             return
         end
-        if (responded) return end
+        if (responded) then return end
     end)
 
     local waitTime = 0
