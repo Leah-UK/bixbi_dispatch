@@ -9,36 +9,39 @@ RegisterCommand(Config.Command, function()
         while (itemCount == nil) do Citizen.Wait(100) end
         if (itemCount == 0) then
             TriggerEvent('bixbi_core:Notify', 'error', 'You must have a ' .. Config.RequiredItem .. ' to use this.')
+            menuOpen = false
+            SendNUIMessage({ show = menuOpen })
             return 
         end
 
         menuOpen = not menuOpen
         dispatchList = {}
         if (menuOpen) then
-            ESX.TriggerServerCallback('bixbi_dispatch:GetListUnComplete', function(response) 
+            ESX.TriggerServerCallback('bixbi_dispatch:GetDispatches', function(response) 
+                while (response == nil) do Citizen.Wait(100) end
                 dispatchList = response.list
                 if (#dispatchList == 0) then 
                     exports['bixbi_core']:Notify('error', 'No incidents reported')
                     return 
                 end
+
                 responseTime = tostring(response.time)
                 dispatchListId = 0
-                MenuNavigate(false, true)
-                MenuControls()
+                if (MenuNavigate(false, true)) then MenuControls() end
             end)
         else
             SendNUIMessage({ show = menuOpen })
-            ClearInterval(1)
+            -- ClearInterval(1)
         end
     end, Config.RequiredItem)
 
 	
 end, false)
-if (Config.Keybind ~= nil) then RegisterKeyMapping('dispatchmenu', 'Dispatch Menu', 'keyboard', Config.Keybind) end
+if (Config.Keybind ~= nil) then RegisterKeyMapping(Config.Command, 'Dispatch Menu', 'keyboard', Config.Keybind) end
 
 function MenuControls()
-    SetInterval(1, 1, function()
-        if (#dispatchList == 0) then return end
+    menuLoop = SetInterval(function()
+        if (not menuOpen) then return end
         if (IsControlJustReleased(0, 174)) then -- left arrow
             if (#dispatchList > 1) then MenuNavigate(true, false) end
             SendSound('navigate')
@@ -51,22 +54,35 @@ function MenuControls()
         if (IsControlJustReleased(0, 43)) then -- [ Respond
             SendSound('pop')
             local dispatch = dispatchList[dispatchListId]
-            if (currentlyAttending[tostring(dispatch.num)] == nil) then
+            if (currentlyAttending[dispatchListId] == nil) then
                 CreateBlip(dispatch.type, false, dispatch.gps, dispatch.num)
-            end
-            if (IsControlJustReleased(0, 42)) then -- ] Delete
-                SendSound('pop')
-                GetYesNo(tostring(dispatchList[dispatchListId].num))
+                TriggerServerEvent('bixbi_dispatch:Attend', source, dispatchListId)
+                currentlyAttending[dispatchListId] = {}
+                table.insert(currentlyAttending, currentlyAttending[dispatchListId])
+            else
+                TriggerServerEvent('bixbi_dispatch:UnAttend', source, dispatchListId)
+                currentlyAttending[dispatchListId] = nil
             end
         end
-    end)
+        if (IsControlJustReleased(0, 304)) then -- H Waypoint
+            SendSound('pop')
+            local dispatch = dispatchList[dispatchListId]
+            CreateBlip(dispatch.type, false, dispatch.gps, dispatch.num)
+        end
+        if (IsControlJustReleased(0, 42)) then -- ] Delete
+            SendSound('pop')
+            GetYesNo(dispatchListId)
+        end
+    end, 1)
 end
 
 function GetYesNo(dispatchNumber)
     ExecuteCommand(Config.Command)
     local responded = false
     SendNUIMessage({ show = true, yesno = true })
-    SetInterval(2, 1, function()
+
+    yesNoLoop = SetInterval(function()
+        if (responded) then return end
         if (IsControlJustReleased(0, 43)) then -- [ Yes
             SendSound('pop')
             TriggerServerEvent('bixbi_dispatch:Remove', source, dispatchNumber)
@@ -78,7 +94,7 @@ function GetYesNo(dispatchNumber)
             responded = true
             return
         end
-    end)
+    end, 2)
 
     local waitTime = 0
     while (not responded) do 
@@ -87,13 +103,13 @@ function GetYesNo(dispatchNumber)
         if (waitTime >= 50 * 100) then responded = true end
     end
     SendNUIMessage({ show = false, yesno = true })
-    ClearInterval(2)
+    -- ClearInterval(2)
 end
 
 local menuNavAttempts = 0
 function MenuNavigate(isLeft, isNew)
     menuNavAttempts = 0
-    DoMenuNav(isLeft, isNew)
+    return DoMenuNav(isLeft, isNew)
 end
 
 function DoMenuNav(isLeft, isNew)
@@ -113,15 +129,18 @@ function DoMenuNav(isLeft, isNew)
         end
     end
 
-    if (dispatchList[dispatchListId] == nil or dispatchList[dispatchListId].num == nil or dispatchList[dispatchListId].complete) then
+    if (dispatchList[dispatchListId] == nil or dispatchList[dispatchListId] == false) then       
         menuNavAttempts = menuNavAttempts + 1
-        if (menuNavAttempts > 999) then 
+        if (menuNavAttempts > 999) then
             exports['bixbi_core']:Notify('error', 'No incidents reported')
-            return
+            return false
+        elseif (menuNavAttempts == 200) then
+            exports['bixbi_core']:Notify('error', 'There\'s more than 200 reports logged. Please wait...')
         end
         DoMenuNav(isLeft, isNew)
     else
         SendNUIMessage(SetupUI(dispatchList[dispatchListId], isNew))
+        return true
     end
 end
 

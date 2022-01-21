@@ -48,24 +48,15 @@ AddEventHandler('bixbi_dispatch:Add', function(source, job, type, message, gps)
         end
     end
 
-    local dispatchNumber = "1"
-    if (dispatchList[job][dispatchNumber] == nil) then
-        dispatchList[job][dispatchNumber] = {}
-        dispatchList[job][dispatchNumber].num = 1
-    else
-        local lastElement = dispatchList[job][#dispatchList[job]]
-        dispatchNumber = tostring(lastElement.num + 1)
-        dispatchList[job][dispatchNumber] = {}
-        dispatchList[job][dispatchNumber].num = lastElement.num + 1
-    end
-
-    dispatchList[job][dispatchNumber].type = type
-    dispatchList[job][dispatchNumber].message = message
-    dispatchList[job][dispatchNumber].gps = gps
-    dispatchList[job][dispatchNumber].time = os.date("%H:%M")
-    dispatchList[job][dispatchNumber].attending = { count = 0 }
-    dispatchList[job][dispatchNumber].complete = false
-    table.insert(dispatchList[job], dispatchList[job][dispatchNumber])
+    local newDispatch = {
+        type = type,
+        message = message,
+        gps = gps,
+        time = os.date("%H:%M"),
+        attending = { count = 0 },
+        num = #dispatchList[job] + 1
+    }
+    table.insert(dispatchList[job], newDispatch)
 
     for k, v in pairs(ESX.GetExtendedPlayers('job', job)) do
         local label = ''
@@ -90,10 +81,11 @@ AddEventHandler('bixbi_dispatch:Remove', function(source, number)
     local job = xPlayer.job.name
     -- dispatchList[xPlayer.job.name][number] = nil
     -- table.remove(dispatchList[xPlayer.job.name], number)
-    dispatchList[job][number].complete = true
+    if (dispatchList[job][number] == nil or dispatchList[job][number] == false) then return end
     TriggerClientEvent('bixbi_core:Notify', source, 'success', 'DISPATCH: [#' .. number .. '] has been marked as complete and removed from the system.', 10000)
-    SendDiscordLog(job, "**Dispatch #" .. number .. " [" .. dispatchList[job][number].time .. "]**\n\nClosed By: **" .. xPlayer.name .. "** [" .. source .. "]")
-
+    SendDiscordLog(job, "**Dispatch #" .. tostring(number) .. " [" .. dispatchList[job][number].time .. "]**\n\nClosed By: **" .. xPlayer.name .. "** [" .. source .. "]")
+    dispatchList[job][number] = false
+    
     for k, v in pairs(ESX.GetExtendedPlayers('job', job)) do
         TriggerClientEvent('bixbi_dispatch:DeleteBlip', k, number)
     end
@@ -123,12 +115,9 @@ ESX.RegisterServerCallback('bixbi_dispatch:GetList', function(source, cb)
     cb(response)
 end)
 
-ESX.RegisterServerCallback('bixbi_dispatch:GetListUnComplete', function(source, cb)
+ESX.RegisterServerCallback('bixbi_dispatch:GetDispatches', function(source, cb)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local list = {}
-    for k, v in ipairs(dispatchList[xPlayer.job.name]) do
-        if (not v.complete) then table.insert(list, dispatchList[xPlayer.job.name][k]) end
-    end
+    local list = dispatchList[xPlayer.job.name]
     local response = { time = os.date("%H:%M"), list = list }
     cb(response)
 end)

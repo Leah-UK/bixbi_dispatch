@@ -6,11 +6,11 @@ game 'gta5'
 author 'Leah#0001'
 version '1.1.3'
 versioncheck 'https://raw.githubusercontent.com/Leah-UK/bixbi_dispatch/main/fxmanifest.lua'
--- lua54 'yes'
+lua54 'yes'
 
 shared_scripts {
 	'@es_extended/imports.lua',
-    '@pe-lualib/init.lua'
+    '@pe-lualib/init.lua',
 	'config.lua'
 }
 
