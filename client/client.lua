@@ -77,7 +77,7 @@ end)
 
 local canCreateDispatch = true
 function CreateDispatch()
-    ESX.TriggerServerCallback('bixbi_core:itemCount', function(itemCount)
+    ESX.TriggerServerCallback('bixbi_core:itemCountCb', function(itemCount)
         while (itemCount == nil) do Citizen.Wait(100) end
         if (itemCount == 0) then
             TriggerEvent('bixbi_core:Notify', 'error', 'You must have a ' .. Config.RequiredItem .. ' to use this.')
