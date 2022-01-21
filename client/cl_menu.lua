@@ -4,6 +4,7 @@ local dispatchList = {}
 local dispatchListId = 0
 local responseTime = ''
 local source = GetPlayerServerId(PlayerId())
+local lowestDispatchNumber = 1
 RegisterCommand(Config.Command, function()
     ESX.TriggerServerCallback('bixbi_core:itemCountCb', function(itemCount)
         while (itemCount == nil) do Citizen.Wait(100) end
@@ -26,7 +27,7 @@ RegisterCommand(Config.Command, function()
                 end
 
                 responseTime = tostring(response.time)
-                dispatchListId = 0
+                dispatchListId = lowestDispatchNumber
                 if (MenuNavigate(false, true)) then MenuControls() end
             end)
         else
@@ -137,6 +138,9 @@ function DoMenuNav(isLeft, isNew)
         elseif (menuNavAttempts == 200) then
             exports['bixbi_core']:Notify('error', 'There\'s more than 200 reports logged. Please wait...')
         end
+
+        if (dispatchListId == lowestDispatchNumber) then lowestDispatchNumber = dispatchListId end
+
         DoMenuNav(isLeft, isNew)
     else
         SendNUIMessage(SetupUI(dispatchList[dispatchListId], isNew))
