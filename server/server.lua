@@ -71,7 +71,7 @@ AddEventHandler('bixbi_dispatch:Add', function(source, job, type, message, gps)
             TriggerClientEvent('bixbi_core:Notify', k, 'error', 'DISPATCH: New ' .. label .. ' has been logged!', 10000)
             TriggerClientEvent('bixbi_core:Notify', k, 'error', 'DISPATCH: New ' .. label .. ' has been logged!', 10000)
         end
-        TriggerClientEvent('bixbi_dispatch:CreateBlip', k, type, true, gps, tostring(newDispatch.number))
+        TriggerClientEvent('bixbi_dispatch:CreateBlip', k, type, true, gps, newDispatch.number)
     end
 end)
 
