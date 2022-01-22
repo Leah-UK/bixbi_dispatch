@@ -77,13 +77,14 @@ function RespondAction()
         doingAction = false
     end)
 
-    if (currentlyAttending[dispatchListId] == nil and not currentlyAttending[dispatchListId]) then
+    local currentAttend = currentlyAttending[dispatchListId]
+    if (currentAttend == nil and currentAttend ~= false) then
         local dispatch = dispatchList[dispatchListId]
-        CreateBlip(dispatch.type, false, dispatch.gps, tostring(dispatch.number))
+        CreateBlip(dispatch.type, false, dispatch.gps, dispatch.number)
         TriggerServerEvent('bixbi_dispatch:Attend', source, dispatch.number)
         currentlyAttending[dispatchListId] = { number = dispatch.number }
     else
-        TriggerServerEvent('bixbi_dispatch:UnAttend', source, currentlyAttending[dispatchListId].number)
+        TriggerServerEvent('bixbi_dispatch:UnAttend', source, currentAttend.number)
         currentlyAttending[dispatchListId] = false
     end
     SendSound('pop')

@@ -95,6 +95,7 @@ RegisterServerEvent('bixbi_dispatch:Attend')
 AddEventHandler('bixbi_dispatch:Attend', function(source, number)
     local xPlayer = ESX.GetPlayerFromId(source)
     local job = xPlayer.job.name
+    if (dispatchList[job][number] == nil or dispatchList[job][number] == false) then return end
     table.insert(dispatchList[job][number]['attending'], { source = xPlayer.name })
     dispatchList[job][number].attending.count = dispatchList[job][number].attending.count + 1
     TriggerClientEvent('bixbi_core:Notify', source, '', 'DISPATCH: You are now attending #' .. number, 10000)
@@ -104,6 +105,7 @@ RegisterServerEvent('bixbi_dispatch:UnAttend')
 AddEventHandler('bixbi_dispatch:UnAttend', function(source, number)
     local xPlayer = ESX.GetPlayerFromId(source)
     local job = xPlayer.job.name
+    if (dispatchList[job][number] == nil or dispatchList[job][number] == false) then return end
     dispatchList[job][number].attending[source] = nil
     dispatchList[job][number].attending.count = dispatchList[job][number].attending.count - 1
     TriggerClientEvent('bixbi_core:Notify', source, 'error', 'DISPATCH: You are no longer attending #' .. number, 10000)

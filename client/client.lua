@@ -25,11 +25,11 @@ function CreateBlip(type, isNew, coords, num)
         SetBlipAsShortRange(blip, true)
 
         BeginTextCommandSetBlipName('STRING')
-        AddTextComponentSubstringPlayerName(blipSettings.label .. ' #' .. num)
+        AddTextComponentSubstringPlayerName(blipSettings.label .. ' #' .. tostring(num))
         EndTextCommandSetBlipName(blip)
 
         if (blipSettings.enableFlash) then
-            CreateBlipFlash(blipSettings, coords, num)
+            CreateBlipFlash(blipSettings, coords, tostring(num))
         end
 
         createdBlips[num] = blip
