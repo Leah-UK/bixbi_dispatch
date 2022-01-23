@@ -119,6 +119,7 @@ end)
 
 ESX.RegisterServerCallback('bixbi_dispatch:GetDispatches', function(source, cb)
     local xPlayer = ESX.GetPlayerFromId(source)
+    if (dispatchList[xPlayer.job.name] == nil or not dispatchList[xPlayer.job.name]) then return end 
     -- local list = dispatchList[xPlayer.job.name]
     local list = {}
     for _, v in pairs(dispatchList[xPlayer.job.name]) do
