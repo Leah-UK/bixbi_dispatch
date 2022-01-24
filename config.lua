@@ -8,15 +8,15 @@ Config.PanicKeybind = nil       -- Set to a value like 'f11' to enable.
 Config.PanicCommand = 'panic'   -- Command to initiate panic button.
 
 Config.Jobs = {
-    police = {
+    ['police'] = {
         discordWebHook = "",
         PanicButton = true      -- Does this job have the ability to use the panic button feature?
     },
-    ambulance = {
+    ['ambulance'] = {
         discordWebHook = "",
         PanicButton = true
     },
-    mechanic = {
+    ['mechanic'] = {
         discordWebHook = "",
         PanicButton = false
     }

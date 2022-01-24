@@ -1,19 +1,30 @@
 ESX = nil
 TriggerEvent("esx:getSharedObject", function(obj) ESX = obj end)
 
-local dispatchList = {police = {}, ambulance = {}, mechanic = {}}
-local typeCooldown = {}
+local dispatchList, typeCooldown = {}, {}
 
-ESX.RegisterCommand('dispatchtest', 'user', function(xPlayer, args, showError)
-	-- TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'test', 'Just a test :)')
-    TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'prisonbreak', 'Prison Break Test', vector3(1755.32, 2604.94, 45.56))
-    TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'drugsale', 'Drug Sale Test', vector3(411.67, -1009.09, 29.36))
-    TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'default', 'Just a text message!', vector3(210.21, -805.9, 30.89))
-end, false)
-
--- ESX.RegisterCommand('dispatchrem', 'user', function(xPlayer, args, showError)
--- 	TriggerEvent('bixbi_dispatch:Remove', xPlayer.playerId, 'police', 'test')
+-- ESX.RegisterCommand('dispatchtest', 'user', function(xPlayer, args, showError)
+-- 	-- TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'test', 'Just a test :)')
+--     TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'prisonbreak', 'Prison Break Test', vector3(1755.32, 2604.94, 45.56))
+--     TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'drugsale', 'Drug Sale Test', vector3(411.67, -1009.09, 29.36))
+--     TriggerEvent('bixbi_dispatch:Add', xPlayer.playerId, 'police', 'default', 'Just a text message!', vector3(210.21, -805.9, 30.89))
 -- end, false)
+
+ESX.RegisterCommand('dispatchra', 'superadmin', function(xPlayer, args, showError)
+    -- Will remove all current dispatches.
+    -- Enjoy this ugly and dirty as fuck loop.
+    for job,_ in pairs(dispatchList) do
+        local getJobMembers = ESX.GetExtendedPlayers('job', job)
+        for id,_ in pairs(dispatchList[job]) do
+            for k,_ in pairs(getJobMembers) do
+                TriggerEvent('bixbi_dispatch:Remove', k, id)
+            end
+        end
+    end
+
+    dispatchList = {}
+    for k, v in pairs(Config.Jobs) do dispatchList[k] = {} end
+end, true)
 
 local onTimer = {}
 RegisterServerEvent('bixbi_dispatch:PanicButton')
@@ -148,4 +159,5 @@ AddEventHandler('onResourceStart', function(resourceName)
 	if (GetResourceState('bixbi_core') ~= 'started' ) then
         print('Bixbi_Dispatch - ERROR: Bixbi_Core hasn\'t been found! This could cause errors!')
     end
+    for k, v in pairs(Config.Jobs) do dispatchList[k] = {} end
 end)
