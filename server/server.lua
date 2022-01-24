@@ -17,7 +17,7 @@ ESX.RegisterCommand('dispatchra', 'superadmin', function(xPlayer, args, showErro
         local getJobMembers = ESX.GetExtendedPlayers('job', job)
         for id,_ in pairs(dispatchList[job]) do
             for k,_ in pairs(getJobMembers) do
-                TriggerEvent('bixbi_dispatch:Remove', k, id)
+                TriggerClientEvent('bixbi_dispatch:DeleteBlip', k, id)
             end
         end
     end
