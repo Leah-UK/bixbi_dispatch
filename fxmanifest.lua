@@ -3,7 +3,7 @@ Creation Date:	25/06/2021
 ]]------------------------------------
 fx_version 'cerulean'
 game 'gta5'
-author 'Leah#0001'
+author 'leah_uk'
 version '1.2.3'
 versioncheck 'https://raw.githubusercontent.com/Leah-UK/bixbi_dispatch/main/fxmanifest.lua'
 lua54 'yes'
